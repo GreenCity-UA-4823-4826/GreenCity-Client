@@ -71,6 +71,13 @@ const AuthModal = ({ initialPage = 'sign-in', isUbs = false, onClose }) => {
     <div className="auth-modal">
       <div className="auth-modal__overlay" onClick={onClose}></div>
       <div className="auth-modal__content">
+        <button
+          className="auth-modal__close-button"
+          onClick={onClose}
+          aria-label="Close authentication form"
+        >
+          <img src={images.cross} alt="Close" />
+        </button>
         <div className="auth-modal__wrapper">
           <div className="auth-modal__left-side">
             <img
@@ -81,13 +88,6 @@ const AuthModal = ({ initialPage = 'sign-in', isUbs = false, onClose }) => {
             />
           </div>
           <div className="auth-modal__right-side">
-            <button
-              className="auth-modal__close-button"
-              onClick={onClose}
-              aria-label="Close authentication form"
-            >
-              <img src={images.cross} alt="Close" />
-            </button>
             <div className="auth-modal__form-container">
               {renderAuthComponent()}
             </div>
