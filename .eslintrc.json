@@ -1,0 +1,31 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest",
+    "prettier"
+  ],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "warn",
+
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-console": ["warn", { "allow": ["warn", "error", "debug"] }],
+    "no-debugger": "error",
+
+    "react/prop-types": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/rules-of-hooks": "error",
+
+    "jsx-a11y/anchor-is-valid": ["warn", {
+      "components": ["Link"],
+      "specialLink": ["to"],
+      "aspects": ["noHref", "invalidHref", "preferButton"]
+    }],
+    "jsx-a11y/img-redundant-alt": "warn",
+
+    "no-duplicate-imports": "error",
+    "prefer-const": "warn",
+    "no-var": "error",
+    "eqeqeq": ["warn", "always", { "null": "ignore" }]
+  }
+}
