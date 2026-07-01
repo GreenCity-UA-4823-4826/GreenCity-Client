@@ -25,9 +25,9 @@
     background-color: white;
     border-radius: 4px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    max-width: 900px;
-    width: 90%;
-    max-height: 90vh;
+
+    width: min(90vw, 1000px);
+    height: min(820px, 90vh);
     overflow: hidden;
   }
 
@@ -63,6 +63,9 @@
     padding: 24px;
     position: relative;
     background-color: white;
+    overflow-y: auto;
+    padding: 64px 24px 24px;
+  
   }
 
   &__close-button {
@@ -84,7 +87,9 @@
   }
 
   &__form-container {
-    padding-top: 24px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
   }
 }
 

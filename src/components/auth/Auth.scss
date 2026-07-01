@@ -2,8 +2,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 200px);
-  padding: 2rem;
+  width: 100%;
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  border-radius: 5px;
+  padding-top: 10px;
   background-color: #f8f8f8;
 }
 
@@ -14,6 +18,8 @@
   padding: 2rem;
   width: 100%;
   max-width: 450px;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
 
   h2 {
     color: #13aa57;
