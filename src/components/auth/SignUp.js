@@ -8,6 +8,11 @@ import GoogleButton from './GoogleButton';
 import ToastNotification from '../shared/ToastNotification';
 import './Auth.scss';
 
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 20;
+const PASSWORD_ALLOWED_SYMBOLS = /^[A-Za-z0-9!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]+$/;
+const PASSWORD_SPECIAL_SYMBOL = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/;
+
 const SignUp = ({ onPageChange }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -72,12 +77,31 @@ const SignUp = ({ onPageChange }) => {
       case 'password':
         if (!value) {
           error = t('auth.passwordRequired', 'Password is required');
-        } else if (value.length < 8) {
+        } else if (value.length < PASSWORD_MIN_LENGTH) {
           error = t('auth.passwordMinLength', 'Password must be at least 8 characters long');
-        } else if (value.length > 20) {
-          error = t('auth.passwordMaxLength', 'Password must be less than 20 characters');
-        } else if (!/^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]*$/.test(value)) {
+        } else if (value.length > PASSWORD_MAX_LENGTH) {
+          error = t('auth.passwordMaxLength', 'Password must be no more than 20 characters');
+        } else if (/\s/.test(value)) {
+          error = t('auth.passwordNoWhitespace', 'Password must not contain spaces');
+        } else if (!PASSWORD_ALLOWED_SYMBOLS.test(value)) {
           error = t('auth.passwordInvalidSymbols', 'Password contains invalid symbols');
+        } else if (!/[A-Z]/.test(value)) {
+          error = t(
+            'auth.passwordUppercaseRequired',
+            'Password must contain at least one uppercase letter'
+          );
+        } else if (!/[a-z]/.test(value)) {
+          error = t(
+            'auth.passwordLowercaseRequired',
+            'Password must contain at least one lowercase letter'
+          );
+        } else if (!/\d/.test(value)) {
+          error = t('auth.passwordDigitRequired', 'Password must contain at least one digit');
+        } else if (!PASSWORD_SPECIAL_SYMBOL.test(value)) {
+          error = t(
+            'auth.passwordSpecialRequired',
+            'Password must contain at least one special character'
+          );
         }
         break;
       case 'confirmPassword':
@@ -114,7 +138,10 @@ const SignUp = ({ onPageChange }) => {
     if (name === 'password' && touched.confirmPassword && formData.confirmPassword) {
       setFormErrors({
         ...formErrors,
-        confirmPassword: formData.confirmPassword !== value ? 'Passwords do not match' : ''
+        confirmPassword:
+          formData.confirmPassword !== value
+            ? t('auth.passwordsDoNotMatch', 'Passwords do not match')
+            : ''
       });
     }
   };

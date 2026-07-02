@@ -104,12 +104,36 @@ describe('SignUp', () => {
   it('shows error when passwords do not match', () => {
     renderSignUp();
     fireEvent.change(screen.getByLabelText(/^password$/i), {
-      target: { name: 'password', value: 'password123' }
+      target: { name: 'password', value: 'Password1!' }
     });
     const confirm = screen.getByLabelText(/confirm password/i);
     fireEvent.change(confirm, { target: { name: 'confirmPassword', value: 'different' } });
     fireEvent.blur(confirm);
     expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
+  });
+
+  it('shows validation error for password without uppercase letter', () => {
+    renderSignUp();
+    const passwordInput = screen.getByLabelText(/^password$/i);
+    fireEvent.change(passwordInput, { target: { name: 'password', value: 'password1!' } });
+    fireEvent.blur(passwordInput);
+    expect(screen.getByText(/uppercase letter/i)).toBeInTheDocument();
+  });
+
+  it('shows validation error for password without special character', () => {
+    renderSignUp();
+    const passwordInput = screen.getByLabelText(/^password$/i);
+    fireEvent.change(passwordInput, { target: { name: 'password', value: 'Password1' } });
+    fireEvent.blur(passwordInput);
+    expect(screen.getByText(/special character/i)).toBeInTheDocument();
+  });
+
+  it('shows validation error for password with whitespace', () => {
+    renderSignUp();
+    const passwordInput = screen.getByLabelText(/^password$/i);
+    fireEvent.change(passwordInput, { target: { name: 'password', value: 'Password 1!' } });
+    fireEvent.blur(passwordInput);
+    expect(screen.getByText(/must not contain spaces/i)).toBeInTheDocument();
   });
 
   it('calls signUp with correct data on valid submit', async () => {
@@ -123,10 +147,10 @@ describe('SignUp', () => {
       target: { name: 'email', value: 'john@example.com' }
     });
     fireEvent.change(screen.getByLabelText(/^password$/i), {
-      target: { name: 'password', value: 'password123' }
+      target: { name: 'password', value: 'Password1!' }
     });
     fireEvent.change(screen.getByLabelText(/confirm password/i), {
-      target: { name: 'confirmPassword', value: 'password123' }
+      target: { name: 'confirmPassword', value: 'Password1!' }
     });
 
     fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
@@ -135,7 +159,7 @@ describe('SignUp', () => {
       expect(mockSignUp).toHaveBeenCalledWith({
         name: 'John Doe',
         email: 'john@example.com',
-        password: 'password123'
+        password: 'Password1!'
       });
     });
   });
@@ -151,10 +175,10 @@ describe('SignUp', () => {
       target: { name: 'email', value: 'john@example.com' }
     });
     fireEvent.change(screen.getByLabelText(/^password$/i), {
-      target: { name: 'password', value: 'password123' }
+      target: { name: 'password', value: 'Password1!' }
     });
     fireEvent.change(screen.getByLabelText(/confirm password/i), {
-      target: { name: 'confirmPassword', value: 'password123' }
+      target: { name: 'confirmPassword', value: 'Password1!' }
     });
 
     fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
@@ -177,10 +201,10 @@ describe('SignUp', () => {
       target: { name: 'email', value: 'john@example.com' }
     });
     fireEvent.change(screen.getByLabelText(/^password$/i), {
-      target: { name: 'password', value: 'password123' }
+      target: { name: 'password', value: 'Password1!' }
     });
     fireEvent.change(screen.getByLabelText(/confirm password/i), {
-      target: { name: 'confirmPassword', value: 'password123' }
+      target: { name: 'confirmPassword', value: 'Password1!' }
     });
 
     fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
