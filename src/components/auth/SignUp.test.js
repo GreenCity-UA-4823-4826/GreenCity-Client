@@ -120,6 +120,22 @@ describe('SignUp', () => {
     expect(screen.getByText(/uppercase letter/i)).toBeInTheDocument();
   });
 
+  it('shows validation error for password without lowercase letter', () => {
+    renderSignUp();
+    const passwordInput = screen.getByLabelText(/^password$/i);
+    fireEvent.change(passwordInput, { target: { name: 'password', value: 'PASSWORD1!' } });
+    fireEvent.blur(passwordInput);
+    expect(screen.getByText(/lowercase letter/i)).toBeInTheDocument();
+  });
+
+  it('shows validation error for password without digit', () => {
+    renderSignUp();
+    const passwordInput = screen.getByLabelText(/^password$/i);
+    fireEvent.change(passwordInput, { target: { name: 'password', value: 'Password!' } });
+    fireEvent.blur(passwordInput);
+    expect(screen.getByText(/at least one digit/i)).toBeInTheDocument();
+  });
+
   it('shows validation error for password without special character', () => {
     renderSignUp();
     const passwordInput = screen.getByLabelText(/^password$/i);

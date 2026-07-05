@@ -78,9 +78,15 @@ const SignUp = ({ onPageChange }) => {
         if (!value) {
           error = t('auth.passwordRequired', 'Password is required');
         } else if (value.length < PASSWORD_MIN_LENGTH) {
-          error = t('auth.passwordMinLength', 'Password must be at least 8 characters long');
+          error = t(
+            'auth.passwordMinLength',
+            `Password must be at least ${PASSWORD_MIN_LENGTH} characters long`
+          );
         } else if (value.length > PASSWORD_MAX_LENGTH) {
-          error = t('auth.passwordMaxLength', 'Password must be no more than 20 characters');
+          error = t(
+            'auth.passwordMaxLength',
+            `Password must be no more than ${PASSWORD_MAX_LENGTH} characters`
+          );
         } else if (/\s/.test(value)) {
           error = t('auth.passwordNoWhitespace', 'Password must not contain spaces');
         } else if (!PASSWORD_ALLOWED_SYMBOLS.test(value)) {
