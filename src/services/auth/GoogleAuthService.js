@@ -143,8 +143,7 @@ class GoogleAuthService {
           lang: language
         },
         headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${idToken}`
+          'Accept': 'application/json'
         },
         withCredentials: false
       });
