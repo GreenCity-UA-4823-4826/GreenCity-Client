@@ -13,7 +13,7 @@ const PASSWORD_MAX_LENGTH = 20;
 const PASSWORD_ALLOWED_SYMBOLS = /^[A-Za-z0-9!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]+$/;
 const PASSWORD_SPECIAL_SYMBOL = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/;
 
-const SignUp = ({ onPageChange }) => {
+const SignUp = ({ onPageChange, onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -47,6 +47,9 @@ const SignUp = ({ onPageChange }) => {
 
   // Handle successful Google sign-in
   const handleGoogleSuccess = (userData) => {
+    if (onClose) {
+      onClose();
+    }
     navigate('/');
   };
 
@@ -398,7 +401,8 @@ const SignUp = ({ onPageChange }) => {
 };
 
 SignUp.propTypes = {
-  onPageChange: PropTypes.func
+  onPageChange: PropTypes.func,
+  onClose: PropTypes.func
 };
 
 export default SignUp;
