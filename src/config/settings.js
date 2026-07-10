@@ -12,7 +12,9 @@ export const MAIL_SETTINGS = {
 };
 
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID?.trim() || '';
-const googleClientIdManager = process.env.REACT_APP_GOOGLE_CLIENT_ID_MANAGER?.trim() || googleClientId;
+
+const googleClientIdManager =
+  process.env.REACT_APP_GOOGLE_CLIENT_ID_MANAGER?.trim() || googleClientId;
 
 // Authentication settings
 export const AUTH_SETTINGS = {
