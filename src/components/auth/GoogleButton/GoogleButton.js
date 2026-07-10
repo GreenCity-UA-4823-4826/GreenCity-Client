@@ -17,7 +17,7 @@ import './GoogleButton.scss';
  */
 const GoogleButton = ({onSuccess, onError, isManager = false, useHeaderAuth = false, useGetAuth = false}) => {
     const {signInWithGoogle, signInWithGoogleHeader, signInWithGoogleGet} = useAuth();
-    const {currentLanguage, t} = useTranslation();
+    const {currentLanguage} = useTranslation();
 
     const handleSuccess = async (credentialResponse) => {
         try {
@@ -56,33 +56,19 @@ const GoogleButton = ({onSuccess, onError, isManager = false, useHeaderAuth = fa
         }
     };
 
-    const locale = 'en';
-    const googleButtonOverlayStyle = {
-        position: 'absolute',
-        inset: 0,
-        opacity: 0.01,
-        overflow: 'hidden',
-        cursor: 'pointer'
-    };
+    const locale = currentLanguage === 'ua' ? 'uk' : currentLanguage || 'en';
 
     return (
         <div className="google-button-container">
-            <div style={{position: 'relative', width: '100%', height: 40}}>
-                <div className="google-button-custom" aria-hidden="true">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo"/>
-                    <span>{t('auth.googleSignIn', 'Sign in with Google')}</span>
-                </div>
-                <div style={googleButtonOverlayStyle}>
-                    <GoogleLogin
-                        onSuccess={handleSuccess}
-                        onError={handleError}
-                        useOneTap={false}
-                        locale={locale}
-                        text="signin_with"
-                        width="400"
-                    />
-                </div>
-            </div>
+            <GoogleLogin
+                onSuccess={handleSuccess}
+                onError={handleError}
+                useOneTap={false}
+                locale={locale}
+                text="signin_with"
+                theme="outline"
+                size="large"
+            />
         </div>
     );
 };
