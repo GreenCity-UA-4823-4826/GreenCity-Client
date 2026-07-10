@@ -1,5 +1,6 @@
 import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
+import PropTypes from 'prop-types';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTranslation } from '../../../services/translation/TranslationService';
 import './GoogleButton.scss';
@@ -10,18 +11,11 @@ import './GoogleButton.scss';
  * @param {Object} props - Component props
  * @param {Function} props.onSuccess - Callback function on successful sign-in
  * @param {Function} props.onError - Callback function on sign-in error
- * @param {boolean} props.isManager - Whether to use manager client ID (not used with @react-oauth/google)
  * @param {boolean} props.useHeaderAuth - Whether to use header-based authentication (default: false)
  * @param {boolean} props.useGetAuth - Whether to use GET-based authentication (default: false)
  * @returns {JSX.Element} - Rendered component
  */
-const GoogleButton = ({
-  onSuccess,
-  onError,
-  isManager = false,
-  useHeaderAuth = false,
-  useGetAuth = false
-}) => {
+const GoogleButton = ({ onSuccess, onError, useHeaderAuth = false, useGetAuth = false }) => {
   const { signInWithGoogle, signInWithGoogleHeader, signInWithGoogleGet } = useAuth();
   const { currentLanguage } = useTranslation();
 
@@ -76,6 +70,13 @@ const GoogleButton = ({
       />
     </div>
   );
+};
+
+GoogleButton.propTypes = {
+  onSuccess: PropTypes.func,
+  onError: PropTypes.func,
+  useHeaderAuth: PropTypes.bool,
+  useGetAuth: PropTypes.bool
 };
 
 export default GoogleButton;
