@@ -11,6 +11,11 @@ export const MAIL_SETTINGS = {
   econewsAddress: 'http://localhost:3000/welcome'
 };
 
+const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID?.trim() || '';
+
+const googleClientIdManager =
+  process.env.REACT_APP_GOOGLE_CLIENT_ID_MANAGER?.trim() || googleClientId;
+
 // Authentication settings
 export const AUTH_SETTINGS = {
   // Token expiration times in minutes
@@ -20,8 +25,8 @@ export const AUTH_SETTINGS = {
   verifyEmailTimeHour: 24,
 
   // OAuth settings
-  googleClientId: process.env.REACT_APP_GOOGLE_CLIENT_ID || '584765975049-0teu14mkdunh9r7mpunqpu7am448lr7c.apps.googleusercontent.com',
-  googleClientIdManager: process.env.REACT_APP_GOOGLE_CLIENT_ID_MANAGER || '${GOOGLE_CLIENT_ID_MANAGER}'
+  googleClientId,
+  googleClientIdManager
 };
 
 // API URLs

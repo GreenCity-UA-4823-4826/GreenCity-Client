@@ -28,6 +28,15 @@ function App() {
   // Get the Google client ID from settings
   const clientId = AUTH_SETTINGS.googleClientId;
 
+  if (!clientId) {
+    return (
+      <div className="container">
+        <h1>Google authentication is not configured</h1>
+        <p>Set REACT_APP_GOOGLE_CLIENT_ID in GreenCity-Client/.env and restart the dev server.</p>
+      </div>
+    );
+  }
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <AuthProvider>

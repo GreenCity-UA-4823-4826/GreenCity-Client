@@ -59,7 +59,7 @@ const AuthModal = ({ initialPage = 'sign-in', isUbs = false, onClose }) => {
       case 'sign-in':
         return <SignIn onPageChange={handlePageChange} isUbs={isUbsPage} onClose={onClose} />;
       case 'sign-up':
-        return <SignUp onPageChange={handlePageChange} isUbs={isUbsPage} />;
+        return <SignUp onPageChange={handlePageChange} isUbs={isUbsPage} onClose={onClose} />;
       case 'restore-password':
         return <ForgotPassword onPageChange={handlePageChange} isUbs={isUbsPage} />;
       default:

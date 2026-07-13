@@ -46,8 +46,7 @@ class TokenService {
           lang: language
         },
         headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${idToken}`
+          'Accept': 'application/json'
         },
         withCredentials: false
       });
