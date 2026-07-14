@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MVP_API_URL } from '../../../config/api';
 import { useTranslation } from '../../../services/translation/TranslationService';
 import './Subscribe.scss';
 
@@ -7,6 +8,7 @@ const Subscribe = () => {
   const [emailTouched, setEmailTouched] = useState(false);
   const [emailValid, setEmailValid] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [message, setMessage] = useState('');
   const { t } = useTranslation();
 
   // Email regex pattern
@@ -23,17 +25,47 @@ const Subscribe = () => {
   const handleEmailChange = (e) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
+    setMessage('');
     setEmailTouched(true);
     validateEmail(newEmail);
   };
 
-  const subscribeToNewsletter = () => {
+  const subscribeToNewsletter = async () => {
     if (emailValid) {
-      // TODO: Implement real subscription API call
-      setSubscribed(true);
-      setEmail('');
-      setEmailTouched(false);
-      setEmailValid(false);
+      setMessage('');
+
+      try {
+        const response = await fetch(`${MVP_API_URL}/news-subscribers`, {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const responseText = await response.text();
+        let resultResponse = {};
+
+        if (responseText) {
+          try {
+            resultResponse = JSON.parse(responseText);
+          } catch {
+            resultResponse = { message: responseText };
+          }
+        }
+
+        if (!response.ok) {
+          setMessage(resultResponse.message || t('homepage.subscription.failed-connect'));
+        } else {
+          setSubscribed(true);
+          setMessage('');
+          setEmail('');
+          setEmailTouched(false);
+          setEmailValid(false);
+        }
+      } catch (error) {
+        setMessage(t('homepage.subscription.failed-connect-server'));
+      }
     } else {
       setEmailTouched(true);
     }
@@ -49,7 +81,7 @@ const Subscribe = () => {
           <h2>{t('homepage.subscription.caption')}</h2>
           <p>{t('homepage.subscription.content')}</p>
           {subscribed && (
-            <p className="subscribe-success">Thank you! You have successfully subscribed.</p>
+            <p className="subscribe-success">{t('homepage.subscription.thank-you-subcribe')}</p>
           )}
           <div className="form-input">
             <input
@@ -58,18 +90,13 @@ const Subscribe = () => {
               onChange={handleEmailChange}
               placeholder={t('homepage.subscription.placeholder')}
             />
-            <p
-              id="validation-error"
-              className={!emailTouched || emailValid ? 'hidden' : 'visible'}
-            >
+            <p id="validation-error" className={!emailTouched || emailValid ? 'hidden' : 'visible'}>
               {t('homepage.subscription.validation-error')}
             </p>
-            <button
-              className="primary-global-button btn"
-              onClick={subscribeToNewsletter}
-            >
+            <button className="primary-global-button btn" onClick={subscribeToNewsletter}>
               {t('homepage.subscription.button-subscribe')}
             </button>
+            {message && <p>{message}</p>}
           </div>
         </div>
       </div>

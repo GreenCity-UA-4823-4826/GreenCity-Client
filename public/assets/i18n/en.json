@@ -70,5 +70,9 @@
   "homepage.subscription.content": "Subscribe for our newsletter and always be up to date with news and updates",
   "homepage.subscription.placeholder": "Enter your email",
   "homepage.subscription.validation-error": "Please enter a valid email address",
-  "homepage.subscription.button-subscribe": "Subscribe"
+  "homepage.subscription.button-subscribe": "Subscribe",
+  "homepage.subscription.failed-connect": "Subscribe is failed, please try again",
+  "homepage.subscription.seccesfully-subcribe": "Seccesfully subcribed",
+  "homepage.subscription.failed-connect-server":"Failed connected with server",
+  "homepage.subscription.thank-you-subcribe":"Thank you! You have successfully subscribed."
 }

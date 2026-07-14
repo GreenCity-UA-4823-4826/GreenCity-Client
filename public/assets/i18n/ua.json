@@ -70,5 +70,9 @@
   "homepage.subscription.content": "Підпишіться на нашу розсилку, щоб отримувати оновлення про еко-події, новини та поради для сталого життя.",
   "homepage.subscription.placeholder": "Введіть вашу електронну пошту",
   "homepage.subscription.validation-error": "Будь ласка, введіть дійсну електронну адресу",
-  "homepage.subscription.button-subscribe": "Підписатися"
+  "homepage.subscription.button-subscribe": "Підписатися",
+  "homepage.subscription.failed-connect": "Не вдалося підписатись. попробуйте ще раз",
+  "homepage.subscription.seccesfully-subcribe":"Ви успішно підписалися",
+  "homepage.subscription.failed-connect-server":"Не вдалося підключитися до сервера",
+  "homepage.subscription.thank-you-subcribe":"Дякуємо! Ви успішно підписалися."
 }
