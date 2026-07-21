@@ -73,25 +73,38 @@
 }
 
 #form-wrapper #validation-error,
-#form-wrapper #subscription-error {
-  bottom: 47px;
+#form-wrapper .subscription-error {
   color: red;
-  margin: 0;
+  margin: 10px 0 0;
   padding: 0;
-  position: absolute;
+  text-align: left;
 }
 
 .form-input {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-top: 42px;
+}
+
+.subscription-controls {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
 }
 
 .btn {
   box-shadow: 0 13px 20px 0 rgba(118, 196, 125, 0.41);
   margin-left: 24px;
   width: 267px;
+}
+
+.btn:disabled {
+    background-color: #ccc;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+    background-color: #ccc;
 }
 
 .visible {
@@ -144,11 +157,7 @@
 }
 
 @media screen and (max-width: 680px) {
-  #form-wrapper #validation-error {
-    bottom: 125px;
-  }
-
-  .form-input {
+  .subscription-controls {
     flex-direction: column;
     gap: 30px;
   }
@@ -158,10 +167,6 @@
   #subscribe {
     padding-bottom: 40px;
     padding-top: 20px;
-  }
-
-  #form-wrapper #validation-error {
-    bottom: 127px;
   }
 
   #form-wrapper h2 {
@@ -184,6 +189,10 @@
 
   .btn {
     margin: 0;
+    width: 100%;
+  }
+
+  .subscription-controls {
     width: 100%;
   }
 }

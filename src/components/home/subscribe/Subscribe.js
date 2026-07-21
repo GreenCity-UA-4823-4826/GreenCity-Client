@@ -27,11 +27,12 @@ const Subscribe = () => {
     setEmail(newEmail);
     setMessage('');
     setEmailTouched(true);
-    validateEmail(newEmail);
+    validateEmail(newEmail.trim());
   };
 
   const subscribeToNewsletter = async () => {
-    if (emailValid) {
+    const trimmedEmail = email.trim();
+    if (validateEmail(trimmedEmail)) {
       setMessage('');
 
       try {
@@ -40,7 +41,7 @@ const Subscribe = () => {
           headers: {
             'Content-type': 'application/json'
           },
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ email: trimmedEmail })
         });
 
         const responseText = await response.text();
@@ -55,7 +56,11 @@ const Subscribe = () => {
         }
 
         if (!response.ok) {
-          setMessage(resultResponse.message || t('homepage.subscription.failed-connect'));
+          setMessage(
+            response.status === 400
+              ? t('homepage.subscription.already-subscribed')
+              : resultResponse.message || t('homepage.subscription.failed-connect')
+          );
         } else {
           setSubscribed(true);
           setMessage('');
@@ -84,19 +89,26 @@ const Subscribe = () => {
             <p className="subscribe-success">{t('homepage.subscription.thank-you-subcribe')}</p>
           )}
           <div className="form-input">
-            <input
-              type="email"
-              value={email}
-              onChange={handleEmailChange}
-              placeholder={t('homepage.subscription.placeholder')}
-            />
+            <div className="subscription-controls">
+              <input
+                type="email"
+                value={email}
+                onChange={handleEmailChange}
+                placeholder={t('homepage.subscription.placeholder')}
+                required
+              />
+              <button
+                className="primary-global-button btn"
+                onClick={subscribeToNewsletter}
+                disabled={!emailValid}
+              >
+                {t('homepage.subscription.button-subscribe')}
+              </button>
+            </div>
             <p id="validation-error" className={!emailTouched || emailValid ? 'hidden' : 'visible'}>
               {t('homepage.subscription.validation-error')}
             </p>
-            <button className="primary-global-button btn" onClick={subscribeToNewsletter}>
-              {t('homepage.subscription.button-subscribe')}
-            </button>
-            {message && <p>{message}</p>}
+            {message && <p className="subscription-error">{message}</p>}
           </div>
         </div>
       </div>
