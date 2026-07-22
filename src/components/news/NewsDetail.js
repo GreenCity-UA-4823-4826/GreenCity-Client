@@ -83,7 +83,9 @@ const NewsDetail = () => {
             {news.tags && news.tags.length > 0 && (
               <div className="news-detail__tags">
                 {news.tags.map((tag, i) => (
-                  <span key={i} className="news-tag">{tag}</span>
+                  <span key={tag?.id ?? i} className="news-tag">
+                    {typeof tag === 'string' ? tag : tag?.name}
+                  </span>
                 ))}
               </div>
             )}

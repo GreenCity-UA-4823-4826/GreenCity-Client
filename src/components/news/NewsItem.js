@@ -51,7 +51,9 @@ const NewsItem = ({ news, isGalleryView = true }) => {
     return (
       <div className="news-tags">
         {news.tags.map((tag, index) => (
-          <span key={index} className="news-tag">{tag}</span>
+          <span key={tag?.id ?? index} className="news-tag">
+            {typeof tag === 'string' ? tag : tag?.name}
+          </span>
         ))}
       </div>
     );

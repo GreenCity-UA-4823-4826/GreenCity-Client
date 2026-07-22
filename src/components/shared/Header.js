@@ -7,6 +7,8 @@ import Notifications from './Notifications';
 import AuthModal from '../auth/AuthModal';
 import Search from './Search';
 import { COMMON_IMAGES } from '../../constants/imagePaths';
+import AuthService from '../../services/auth/AuthService';
+import { MANAGEMENT_SETTINGS } from '../../config/settings';
 import './Header.scss';
 
 const Header = () => {
@@ -21,6 +23,19 @@ const Header = () => {
     signOut();
     navigate('/');
     setShowDropdown(false);
+  };
+
+  const isAdmin = AuthService.hasRole('ROLE_ADMIN');
+
+  const openManagement = () => {
+    const accessToken = AuthService.getAccessToken();
+    if (!accessToken) {
+      handleSignOut();
+      return;
+    }
+
+    const managementUrl = `${MANAGEMENT_SETTINGS.serverAddress}/token?accessToken=${encodeURIComponent(accessToken)}`;
+    window.location.assign(managementUrl);
   };
 
   const toggleDropdown = () => {
@@ -80,6 +95,7 @@ const Header = () => {
                 <div className="profile-dropdown">
                   <Link to={`/profile/${currentUser?.id}`} onClick={() => setShowDropdown(false)}>{t('nav.mySpace')}</Link>
                   <Link to="/ubs-user/orders" onClick={() => setShowDropdown(false)}>{t('nav.myCabinet')}</Link>
+                  {isAdmin && <button onClick={openManagement}>Management</button>}
                   <button onClick={handleSignOut}>{t('nav.signOut')}</button>
                 </div>
               )}

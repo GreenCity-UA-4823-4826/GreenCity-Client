@@ -5,6 +5,10 @@ import './EcoEventsItem.scss';
 const EcoEventsItem = ({ ecoEvent, mainEvent = false }) => {
   if (!ecoEvent) return null;
 
+  const authorName = typeof ecoEvent.author === 'string'
+    ? ecoEvent.author
+    : ecoEvent.author?.name || 'Unknown Author';
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -22,7 +26,7 @@ const EcoEventsItem = ({ ecoEvent, mainEvent = false }) => {
         </h3>
         <p className="event-description">{ecoEvent.content}</p>
         <div className="event-info">
-          <span className="event-author">{ecoEvent.author}</span>
+          <span className="event-author">{authorName}</span>
           <span className="event-date">{formatDate(ecoEvent.creationDate)}</span>
         </div>
       </div>
