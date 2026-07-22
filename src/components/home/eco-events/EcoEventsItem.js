@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import './EcoEventsItem.scss';
 
@@ -33,6 +34,22 @@ const EcoEventsItem = ({ ecoEvent, mainEvent = false }) => {
       </div>
     </div>
   );
+};
+
+EcoEventsItem.propTypes = {
+  ecoEvent: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    title: PropTypes.string,
+    content: PropTypes.string,
+    creationDate: PropTypes.string,
+    author: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({
+        name: PropTypes.string
+      })
+    ])
+  }),
+  mainEvent: PropTypes.bool
 };
 
 export default EcoEventsItem;
