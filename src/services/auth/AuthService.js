@@ -250,28 +250,6 @@ class AuthService {
   }
 
   /**
-   * Check whether the current access token contains a role.
-   * @param {string} role - Role name, for example ROLE_ADMIN
-   * @returns {boolean} Whether the role is present in the JWT
-   */
-  static hasRole(role) {
-    const token = this.getAccessToken();
-    if (!token) return false;
-
-    try {
-      const encodedPayload = token.split('.')[1]
-        .replace(/-/g, '+')
-        .replace(/_/g, '/');
-      const paddedPayload = encodedPayload.padEnd(Math.ceil(encodedPayload.length / 4) * 4, '=');
-      const payload = JSON.parse(atob(paddedPayload));
-      const roles = Array.isArray(payload.role) ? payload.role : [payload.role];
-      return roles.includes(role);
-    } catch (_error) {
-      return false;
-    }
-  }
-
-  /**
    * Get refresh token from local storage
    * @returns {string|null} - Refresh token or null if not found
    */

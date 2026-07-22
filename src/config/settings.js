@@ -34,16 +34,11 @@ export const API_SETTINGS = {
   serverAddress: process.env.REACT_APP_USER_API_URL?.replace('/api', '') || 'http://localhost:8060'
 };
 
-export const MANAGEMENT_SETTINGS = {
-  serverAddress: process.env.REACT_APP_MVP_SERVER_URL || 'http://localhost:8085'
-};
-
 // Export all settings as a single object
 const SETTINGS = {
   MAIL: MAIL_SETTINGS,
   AUTH: AUTH_SETTINGS,
-  API: API_SETTINGS,
-  MANAGEMENT: MANAGEMENT_SETTINGS
+  API: API_SETTINGS
 };
 
 export default SETTINGS;

@@ -72,6 +72,43 @@ describe('Subscribe', () => {
     });
   });
 
+  it('disables the subscribe button while the request is pending', async () => {
+    let resolveRequest;
+    global.fetch.mockReturnValue(
+      new Promise((resolve) => {
+        resolveRequest = resolve;
+      })
+    );
+    const { emailInput, subscribeButton } = renderSubscribe();
+
+    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
+    fireEvent.click(subscribeButton);
+
+    expect(subscribeButton).toBeDisabled();
+
+    resolveRequest({
+      ok: true,
+      text: jest.fn().mockResolvedValue('')
+    });
+    await waitFor(() => expect(emailInput).toHaveValue(''));
+  });
+
+  it('clears the success message when the email is edited', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      text: jest.fn().mockResolvedValue('')
+    });
+    const { emailInput, subscribeButton } = renderSubscribe();
+
+    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
+    fireEvent.click(subscribeButton);
+
+    expect(await screen.findByText('homepage.subscription.thank-you-subcribe')).toBeInTheDocument();
+    fireEvent.change(emailInput, { target: { value: 'another@example.com' } });
+
+    expect(screen.queryByText('homepage.subscription.thank-you-subcribe')).not.toBeInTheDocument();
+  });
+
   it('shows an already subscribed message when the backend rejects a duplicate', async () => {
     global.fetch.mockResolvedValue({
       ok: false,

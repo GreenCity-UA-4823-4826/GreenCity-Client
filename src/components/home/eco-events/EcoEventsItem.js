@@ -5,9 +5,10 @@ import './EcoEventsItem.scss';
 const EcoEventsItem = ({ ecoEvent, mainEvent = false }) => {
   if (!ecoEvent) return null;
 
-  const authorName = typeof ecoEvent.author === 'string'
-    ? ecoEvent.author
-    : ecoEvent.author?.name || 'Unknown Author';
+  const authorName =
+    typeof ecoEvent.author === 'string'
+      ? ecoEvent.author
+      : ecoEvent.author?.name || 'Unknown Author';
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

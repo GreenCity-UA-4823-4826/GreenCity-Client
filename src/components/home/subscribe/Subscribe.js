@@ -8,6 +8,7 @@ const Subscribe = () => {
   const [emailTouched, setEmailTouched] = useState(false);
   const [emailValid, setEmailValid] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const { t } = useTranslation();
 
@@ -25,6 +26,7 @@ const Subscribe = () => {
   const handleEmailChange = (e) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
+    setSubscribed(false);
     setMessage('');
     setEmailTouched(true);
     validateEmail(newEmail.trim());
@@ -34,6 +36,7 @@ const Subscribe = () => {
     const trimmedEmail = email.trim();
     if (validateEmail(trimmedEmail)) {
       setMessage('');
+      setIsLoading(true);
 
       try {
         const response = await fetch(`${MVP_API_URL}/news-subscribers`, {
@@ -70,6 +73,8 @@ const Subscribe = () => {
         }
       } catch (error) {
         setMessage(t('homepage.subscription.failed-connect-server'));
+      } finally {
+        setIsLoading(false);
       }
     } else {
       setEmailTouched(true);
@@ -100,7 +105,7 @@ const Subscribe = () => {
               <button
                 className="primary-global-button btn"
                 onClick={subscribeToNewsletter}
-                disabled={!emailValid}
+                disabled={!emailValid || isLoading}
               >
                 {t('homepage.subscription.button-subscribe')}
               </button>

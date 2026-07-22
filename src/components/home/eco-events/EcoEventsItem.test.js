@@ -3,17 +3,20 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import EcoEventsItem from './EcoEventsItem';
 
-const renderItem = (author) => render(
-  <MemoryRouter>
-    <EcoEventsItem ecoEvent={{
-      id: 1,
-      title: 'Eco news',
-      content: 'News content',
-      creationDate: '2026-07-21T12:00:00',
-      author
-    }} />
-  </MemoryRouter>
-);
+const renderItem = (author) =>
+  render(
+    <MemoryRouter>
+      <EcoEventsItem
+        ecoEvent={{
+          id: 1,
+          title: 'Eco news',
+          content: 'News content',
+          creationDate: '2026-07-21T12:00:00',
+          author
+        }}
+      />
+    </MemoryRouter>
+  );
 
 describe('EcoEventsItem', () => {
   it('renders an author returned as an object', () => {
