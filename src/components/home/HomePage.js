@@ -88,9 +88,11 @@ const HomePage = () => {
           <h2 className="section-caption">{t('homepage.eco-news.title')}</h2>
           <EcoEvents />
         </section>
+        {!userId && (
         <section id="subscription">
           <Subscribe />
         </section>
+        )}
       </div>
 
       {/* Auth Modal */}

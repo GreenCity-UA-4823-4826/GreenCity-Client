@@ -85,6 +85,18 @@ describe('NewsDetail', () => {
     });
   });
 
+  it('renders tags returned as objects', async () => {
+    NewsService.getNewsById.mockResolvedValueOnce({
+      ...mockArticle,
+      tags: [{ id: 1, name: 'NEWS' }]
+    });
+    renderDetail();
+
+    await waitFor(() => {
+      expect(screen.getByText('NEWS')).toBeInTheDocument();
+    });
+  });
+
   it('renders breadcrumb navigation', async () => {
     NewsService.getNewsById.mockResolvedValueOnce(mockArticle);
     renderDetail();

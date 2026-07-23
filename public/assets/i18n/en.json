@@ -66,9 +66,14 @@
   "homepage.eco-news.error": "Failed to load news. Please try again later.",
   "homepage.eco-news.no-news": "No news available at the moment.",
   "homepage.eco-news.read-all": "Read all news",
-  "homepage.subscription.caption": "Receive interesting news",
+  "homepage.subscription.caption": "Receive interesting Eco-news",
   "homepage.subscription.content": "Subscribe for our newsletter and always be up to date with news and updates",
   "homepage.subscription.placeholder": "Enter your email",
   "homepage.subscription.validation-error": "Please enter a valid email address",
-  "homepage.subscription.button-subscribe": "Subscribe"
+  "homepage.subscription.button-subscribe": "Subscribe",
+  "homepage.subscription.failed-connect": "Subscribe is failed, please try again",
+  "homepage.subscription.seccesfully-subcribe": "Seccesfully subcribed",
+  "homepage.subscription.failed-connect-server":"Failed connected with server",
+  "homepage.subscription.thank-you-subcribe":"Thank you! You have successfully subscribed.",
+  "homepage.subscription.already-subscribed":"Oops, you are already subscribed to the newsletter."
 }

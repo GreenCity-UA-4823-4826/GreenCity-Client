@@ -38,6 +38,11 @@ describe('NewsItem', () => {
     expect(screen.getByText('EVENTS')).toBeInTheDocument();
   });
 
+  it('renders tags returned as objects', () => {
+    renderItem({ news: { ...mockNews, tags: [{ id: 1, name: 'NEWS' }] } });
+    expect(screen.getByText('NEWS')).toBeInTheDocument();
+  });
+
   it('renders formatted date', () => {
     renderItem();
     expect(screen.getByText(/june 15, 2024/i)).toBeInTheDocument();
