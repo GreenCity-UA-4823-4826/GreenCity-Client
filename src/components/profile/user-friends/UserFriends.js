@@ -25,114 +25,68 @@ const UserFriends = ({ profileUserId, isCurrentUser }) => {
   const [error, setError] = useState(null);
   const [slideIndex, setSlideIndex] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [friendsToShow, setFriendsToShow] = useState(6);
   const [onlineStatus, setOnlineStatus] = useState({});
+  const friendsToShow = 6;
 
   const nextArrowRef = useRef(null);
   const previousArrowRef = useRef(null);
   const sliderRef = useRef(null);
 
-  // Map of items to show based on screen width
-  const itemsMap = { 768: 6, 576: 6, 320: 6, 220: 6 };
-
   useEffect(() => {
-    calculateFriendsToShow();
-    showUsersFriends();
-
-    // Add resize event listener
-    const handleResize = () => {
-      calculateFriendsToShow();
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    // Clean up event listener
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [slideIndex, friendsToShow, profileUserId]);
-
-  /**
-   * Calculate how many friends to show based on screen width
-   */
-  const calculateFriendsToShow = () => {
-    const newFriendsToShow = getFriendsToShow();
-    if (newFriendsToShow === friendsToShow) {
+    if (!currentUser || !profileUserId) {
       return;
     }
 
-    setFriendsToShow(newFriendsToShow);
+    let active = true;
 
-    if (newFriendsToShow > amountOfFriends) {
-      changeFriends(false);
-    }
-  };
+    const loadFriends = async () => {
+      try {
+        setLoading(true);
+        const response = await FriendService.getUserFriends(
+          profileUserId,
+          slideIndex,
+          friendsToShow
+        );
+        const friends = response.page || response.content || [];
 
-  /**
-   * Get number of friends to show based on screen width
-   * @returns {number} Number of friends to show
-   */
-  const getFriendsToShow = () => {
-    const resolution = Object.keys(itemsMap)
-      .map(Number)
-      .sort((a, b) => b - a)
-      .find((resolution) => window.innerWidth >= resolution);
+        const statuses = await Promise.all(
+          friends.map((friend) => FriendService.isUserOnline(friend.id))
+        );
 
-    return resolution !== undefined ? itemsMap[resolution] : 0;
-  };
+        if (!active) {
+          return;
+        }
 
-  /**
-   * Fetch user's friends
-   */
-  const showUsersFriends = async () => {
-    if (!currentUser || !profileUserId) return;
+        setError(null);
+        setTotalPages(response.totalPages || 0);
+        setUsersFriends(friends);
+        setAmountOfFriends(response.totalElements || 0);
+        setOnlineStatus(
+          Object.fromEntries(friends.map((friend, index) => [friend.id, statuses[index]]))
+        );
 
-    try {
-      setLoading(true);
-      const response = await FriendService.getUserFriends(
-        profileUserId,
-        slideIndex,
-        friendsToShow
-      );
-      const friends = response.page || response.content || [];
+        const showArrows = friendsToShow < response.totalElements && window.innerWidth < 768;
+        if (nextArrowRef.current && previousArrowRef.current) {
+          nextArrowRef.current.style.visibility = showArrows ? 'visible' : 'hidden';
+          previousArrowRef.current.style.visibility = showArrows ? 'visible' : 'hidden';
+        }
+      } catch (error) {
+        if (active) {
+          console.error('Error fetching friends:', error);
+          setError('Failed to load friends. Please try again later.');
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
 
-      setError(null);
-      setTotalPages(response.totalPages || 0);
-      setUsersFriends(friends);
-      setAmountOfFriends(response.totalElements || 0);
-
-      // Check online status for each friend
-      const friendIds = friends.map((friend) => friend.id);
-      checkOnlineStatus(friendIds);
-
-      updateArrowsVisibility();
-    } catch (error) {
-      console.error('Error fetching friends:', error);
-      setError('Failed to load friends. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * Check online status for a list of user IDs
-   * @param {number[]} userIds - User IDs to check
-   */
-  const checkOnlineStatus = async (userIds) => {
-    try {
-      const statusPromises = userIds.map((id) => FriendService.isUserOnline(id));
-      const statuses = await Promise.all(statusPromises);
-
-      const newOnlineStatus = {};
-      userIds.forEach((id, index) => {
-        newOnlineStatus[id] = statuses[index];
-      });
-
-      setOnlineStatus(newOnlineStatus);
-    } catch (error) {
-      console.error('Error checking online status:', error);
-    }
-  };
+    loadFriends();
+    return () => {
+      active = false;
+    };
+  }, [currentUser, profileUserId, slideIndex]);
 
   /**
    * Navigate to friend's profile
@@ -154,17 +108,6 @@ const UserFriends = ({ profileUserId, isCurrentUser }) => {
     } else {
       setSlideIndex(totalPages - 1);
     }
-  };
-
-  /**
-   * Update the visibility of the navigation arrows
-   */
-  const updateArrowsVisibility = () => {
-    if (!nextArrowRef.current || !previousArrowRef.current) return;
-
-    const show = friendsToShow < amountOfFriends && window.innerWidth < 768 ? 'visible' : 'hidden';
-    nextArrowRef.current.style.visibility = show;
-    previousArrowRef.current.style.visibility = show;
   };
 
   /**

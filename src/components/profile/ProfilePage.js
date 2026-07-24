@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import UserService from '../../services/user/UserService';
@@ -22,24 +22,7 @@ const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [isCurrentUser, setIsCurrentUser] = useState(false);
 
-  useEffect(() => {
-    if (authLoading) {
-      return;
-    }
-
-    // Check if user is authenticated and if the profile belongs to the current user
-    if (!isAuthenticated()) {
-      navigate('/auth/sign-in', { state: { message: 'Please sign in to view profiles.' } });
-      return;
-    }
-
-    const currentUserId = String(currentUser?.id ?? getUserId());
-    setIsCurrentUser(currentUserId === userId);
-
-    loadUserData();
-  }, [userId, currentUser, authLoading, isAuthenticated, getUserId, navigate]);
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     try {
       setLoading(true);
       const profileData = await UserService.getUserProfile(userId);
@@ -63,7 +46,24 @@ const ProfilePage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
+    // Check if user is authenticated and if the profile belongs to the current user
+    if (!isAuthenticated()) {
+      navigate('/auth/sign-in', { state: { message: 'Please sign in to view profiles.' } });
+      return;
+    }
+
+    const currentUserId = String(currentUser?.id ?? getUserId());
+    setIsCurrentUser(currentUserId === userId);
+
+    loadUserData();
+  }, [userId, currentUser, authLoading, isAuthenticated, getUserId, navigate, loadUserData]);
 
   const addHabit = async (habitData) => {
     try {

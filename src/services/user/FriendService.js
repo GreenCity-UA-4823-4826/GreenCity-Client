@@ -7,6 +7,14 @@ const USER_LINK = `${API_BASE_URL}/user`;
 const FRIEND_LINK = `${API_BASE_URL}/friends`;
 const HABIT_LINK = `${API_BASE_URL}/habit`;
 
+const normalizeId = (value, fieldName) => {
+  const id = Number(value);
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new TypeError(`${fieldName} must be a positive integer`);
+  }
+  return id;
+};
+
 /**
  * Service for friend-related API calls
  */
@@ -20,7 +28,7 @@ class FriendService {
    */
   static async getAllFriends(page = 0, size = 10) {
     try {
-      const response = await axios.get(`${FRIEND_LINK}?page=${page}&size=${size}`);
+      const response = await axios.get(FRIEND_LINK, { params: { page, size } });
       return response.data;
     } catch (error) {
       console.error('Error getting all friends:', error);
@@ -38,9 +46,7 @@ class FriendService {
    */
   static async getFriendsByName(name, page = 0, size = 10) {
     try {
-      const response = await axios.get(
-        `${FRIEND_LINK}?name=${encodeURIComponent(name)}&page=${page}&size=${size}`
-      );
+      const response = await axios.get(FRIEND_LINK, { params: { name, page, size } });
       return response.data;
     } catch (error) {
       console.error(`Error getting friends by name "${name}":`, error);
@@ -58,9 +64,9 @@ class FriendService {
    */
   static async getNewFriends(name = '', page = 0, size = 10) {
     try {
-      const response = await axios.get(
-        `${FRIEND_LINK}/not-friends-yet?name=${encodeURIComponent(name)}&page=${page}&size=${size}`
-      );
+      const response = await axios.get(`${FRIEND_LINK}/not-friends-yet`, {
+        params: { name, page, size }
+      });
       return response.data;
     } catch (error) {
       console.error('Error getting new potential friends:', error);
@@ -96,7 +102,9 @@ class FriendService {
    */
   static async getFriendRequests(page = 0, size = 10) {
     try {
-      const response = await axios.get(`${FRIEND_LINK}/friendRequests?page=${page}&size=${size}`);
+      const response = await axios.get(`${FRIEND_LINK}/friendRequests`, {
+        params: { page, size }
+      });
       return response.data;
     } catch (error) {
       console.error('Error getting friend requests:', error);
@@ -114,7 +122,10 @@ class FriendService {
    */
   static async getUserFriends(userId, page = 0, size = 10) {
     try {
-      const response = await axios.get(`${FRIEND_LINK}/user/${userId}?page=${page}&size=${size}`);
+      const safeUserId = normalizeId(userId, 'userId');
+      const response = await axios.get(`${FRIEND_LINK}/user/${safeUserId}`, {
+        params: { page, size }
+      });
       return response.data;
     } catch (error) {
       console.error(`Error getting friends of user with ID ${userId}:`, error);
@@ -132,9 +143,10 @@ class FriendService {
    */
   static async getMutualFriends(userId, page = 0, size = 10) {
     try {
-      const response = await axios.get(
-        `${FRIEND_LINK}/mutual-friends?friendId=${userId}&page=${page}&size=${size}`
-      );
+      const safeUserId = normalizeId(userId, 'userId');
+      const response = await axios.get(`${FRIEND_LINK}/mutual-friends`, {
+        params: { friendId: safeUserId, page, size }
+      });
       return response.data;
     } catch (error) {
       console.error(`Error getting mutual friends with user ID ${userId}:`, error);
@@ -151,9 +163,9 @@ class FriendService {
    */
   static async getRecommendedFriends(page = 0, size = 10) {
     try {
-      const response = await axios.get(
-        `${FRIEND_LINK}/recommended-friends?page=${page}&size=${size}`
-      );
+      const response = await axios.get(`${FRIEND_LINK}/recommended-friends`, {
+        params: { page, size }
+      });
       return response.data;
     } catch (error) {
       console.error('Error getting recommended friends:', error);
@@ -282,10 +294,13 @@ class FriendService {
    */
   static async inviteFriendsToHabit(habitId, friendIds) {
     try {
-      const queryParams = friendIds.map((id) => `friendsIds=${id}`).join('&');
+      const safeHabitId = normalizeId(habitId, 'habitId');
+      const params = new URLSearchParams();
+      friendIds.forEach((id) => params.append('friendsIds', normalizeId(id, 'friendId')));
       const response = await axios.post(
-        `${HABIT_LINK}/assign/${habitId}/invite?${queryParams}`,
-        {}
+        `${HABIT_LINK}/assign/${safeHabitId}/invite`,
+        {},
+        { params }
       );
       return response.data;
     } catch (error) {
