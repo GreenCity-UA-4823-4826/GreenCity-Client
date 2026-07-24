@@ -5,7 +5,6 @@ import { MVP_API_URL } from '../../config/api';
 const API_BASE_URL = MVP_API_URL;
 const USER_LINK = `${API_BASE_URL}/user`;
 const FRIEND_LINK = `${API_BASE_URL}/friends`;
-const HABIT_LINK = `${API_BASE_URL}/habit`;
 
 const normalizeId = (value, fieldName) => {
   const id = Number(value);
@@ -123,8 +122,8 @@ class FriendService {
   static async getUserFriends(userId, page = 0, size = 10) {
     try {
       const safeUserId = normalizeId(userId, 'userId');
-      const response = await axios.get(`${FRIEND_LINK}/user/${safeUserId}`, {
-        params: { page, size }
+      const response = await axios.get(`${FRIEND_LINK}/user`, {
+        params: { userId: safeUserId, page, size }
       });
       return response.data;
     } catch (error) {
@@ -282,30 +281,6 @@ class FriendService {
     } catch (error) {
       console.error(`Error checking if user with ID ${userId} is online:`, error);
       return false; // Default to offline if there's an error
-    }
-  }
-
-  /**
-   * Invite friends to a habit
-   *
-   * @param {number} habitId - Habit ID
-   * @param {number[]} friendIds - Friend IDs
-   * @returns {Promise<Object>} Promise that resolves when the invitations are sent
-   */
-  static async inviteFriendsToHabit(habitId, friendIds) {
-    try {
-      const safeHabitId = normalizeId(habitId, 'habitId');
-      const params = new URLSearchParams();
-      friendIds.forEach((id) => params.append('friendsIds', normalizeId(id, 'friendId')));
-      const response = await axios.post(
-        `${HABIT_LINK}/assign/${safeHabitId}/invite`,
-        {},
-        { params }
-      );
-      return response.data;
-    } catch (error) {
-      console.error(`Error inviting friends to habit with ID ${habitId}:`, error);
-      throw error;
     }
   }
 }
