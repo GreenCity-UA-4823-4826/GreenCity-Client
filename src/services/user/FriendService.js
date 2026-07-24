@@ -217,7 +217,7 @@ class FriendService {
    */
   static async removeFriend(userId) {
     try {
-      const response = await axios.delete(`${FRIEND_LINK}/${userId}`);
+      const response = await axios.delete(`${FRIEND_LINK}/${userId}/remove`);
       return response.data;
     } catch (error) {
       console.error(`Error removing friend with ID ${userId}:`, error);
