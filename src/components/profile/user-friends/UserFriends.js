@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import PropTypes from 'prop-types';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import FriendService from '../../../services/user/FriendService';
+import { useTranslation } from '../../../services/translation/TranslationService';
 import UserProfileImage from '../../shared/user-profile-image/UserProfileImage';
 import './UserFriends.scss';
 
@@ -13,8 +14,8 @@ const arrowNext = '/assets/img/arrow_right.svg';
 /**
  * Component for displaying a user's friends
  */
-const UserFriends = () => {
-  const { t, i18n } = useTranslation();
+const UserFriends = ({ profileUserId, isCurrentUser }) => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -32,7 +33,7 @@ const UserFriends = () => {
   const sliderRef = useRef(null);
 
   // Map of items to show based on screen width
-  const itemsMap = { 768: 6, 576: 5, 320: 3, 220: 1 };
+  const itemsMap = { 768: 6, 576: 6, 320: 6, 220: 6 };
 
   useEffect(() => {
     calculateFriendsToShow();
@@ -49,7 +50,7 @@ const UserFriends = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [slideIndex, friendsToShow]);
+  }, [slideIndex, friendsToShow, profileUserId]);
 
   /**
    * Calculate how many friends to show based on screen width
@@ -75,7 +76,7 @@ const UserFriends = () => {
     const resolution = Object.keys(itemsMap)
       .map(Number)
       .sort((a, b) => b - a)
-      .find(resolution => window.innerWidth >= resolution);
+      .find((resolution) => window.innerWidth >= resolution);
 
     return resolution !== undefined ? itemsMap[resolution] : 0;
   };
@@ -84,18 +85,24 @@ const UserFriends = () => {
    * Fetch user's friends
    */
   const showUsersFriends = async () => {
-    if (!currentUser) return;
+    if (!currentUser || !profileUserId) return;
 
     try {
       setLoading(true);
-      const response = await FriendService.getAllFriends(slideIndex, friendsToShow);
+      const response = await FriendService.getUserFriends(
+        profileUserId,
+        slideIndex,
+        friendsToShow
+      );
+      const friends = response.page || response.content || [];
 
-      setTotalPages(response.totalPages);
-      setUsersFriends(response.page);
-      setAmountOfFriends(response.totalElements);
+      setError(null);
+      setTotalPages(response.totalPages || 0);
+      setUsersFriends(friends);
+      setAmountOfFriends(response.totalElements || 0);
 
       // Check online status for each friend
-      const friendIds = response.page.map(friend => friend.id);
+      const friendIds = friends.map((friend) => friend.id);
       checkOnlineStatus(friendIds);
 
       updateArrowsVisibility();
@@ -113,7 +120,7 @@ const UserFriends = () => {
    */
   const checkOnlineStatus = async (userIds) => {
     try {
-      const statusPromises = userIds.map(id => FriendService.isUserOnline(id));
+      const statusPromises = userIds.map((id) => FriendService.isUserOnline(id));
       const statuses = await Promise.all(statusPromises);
 
       const newOnlineStatus = {};
@@ -132,7 +139,7 @@ const UserFriends = () => {
    * @param {Object} friend - Friend to navigate to
    */
   const showFriendsInfo = (friend) => {
-    navigate(`/profile/${currentUser.id}/friends/${friend.name}/${friend.id}`);
+    navigate(`/profile/${friend.id}`);
   };
 
   /**
@@ -169,18 +176,6 @@ const UserFriends = () => {
     return onlineStatus[friendId] || false;
   };
 
-  /**
-   * Truncate text to a maximum length
-   * @param {string} text - Text to truncate
-   * @param {number} maxLength - Maximum length
-   * @returns {string} Truncated text
-   */
-  const truncateText = (text, maxLength) => {
-    if (!text) return '';
-    const words = text.split(' ');
-    return words[0].length > maxLength ? words[0].substring(0, maxLength) + '...' : words[0];
-  };
-
   if (loading && !usersFriends.length) {
     return (
       <div className="main-container outer">
@@ -191,35 +186,26 @@ const UserFriends = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="main-container outer">
-        <div className="friends">
-          <div className="error">{error}</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="main-container outer">
-      {amountOfFriends > 0 ? (
-        <div className="friends">
-          <div className="friends-text">
-            <div className="text-main-content">
-              <p className="text-title">
-                {t('profile.my-eco-friends')}
-              </p>
-              <Link className="text-more" to={`/profile/${currentUser?.id}/friends`}>
-                {t('profile.see-all')}
-              </Link>
-            </div>
+      <div className="friends">
+        <div className="friends-text">
+          <div className="text-main-content">
             <div>
+              <p className="text-title">{t('profile.my-friends')}</p>
               <span className="text-number">
-                {amountOfFriends} {t('profile.friends-quantity', { count: amountOfFriends })}
+                {amountOfFriends} {t('profile.connections', { count: amountOfFriends })}
               </span>
             </div>
+            {isCurrentUser && (
+              <Link className="text-more" to={`/profile/${currentUser?.id}/friends`}>
+                {t('profile.see-more')}
+              </Link>
+            )}
           </div>
+        </div>
+
+        {amountOfFriends > 0 ? (
           <div className="slider-wrapper">
             <img
               ref={previousArrowRef}
@@ -229,8 +215,12 @@ const UserFriends = () => {
               alt="arrow previous"
             />
             <div ref={sliderRef} className="friends-images">
-              {usersFriends.map(friend => (
-                <div key={friend.id} onClick={() => showFriendsInfo(friend)}>
+              {usersFriends.map((friend) => (
+                <div
+                  className="friend-card"
+                  key={friend.id}
+                  onClick={() => showFriendsInfo(friend)}
+                >
                   <UserProfileImage
                     imgPath={friend.profilePicturePath}
                     firstName={friend.name}
@@ -238,7 +228,6 @@ const UserFriends = () => {
                     additionalImgClass="friend-user-profile"
                     isOnline={isFriendOnline(friend.id)}
                   />
-                  <p className="friend-name">{truncateText(friend.name, 10)}</p>
                 </div>
               ))}
             </div>
@@ -250,22 +239,30 @@ const UserFriends = () => {
               alt="arrow next"
             />
           </div>
-        </div>
-      ) : (
-        <div className="friends-error">
-          <div className="text-title">
-            <p>{t('profile.my-eco-friends')}</p>
-            <span className="text-number">0 {t('profile.friends-quantity', { count: 0 })}</span>
-            <div className="error-message">
-              <div className="add-friends">
-                <Link to={`/profile/${currentUser?.id}/friends/recommended`}>+</Link>
-              </div>
-            </div>
+        ) : (
+          <div className="friends-empty">
+            {isCurrentUser ? (
+              <Link
+                className="add-friend-circle"
+                to={`/profile/${currentUser?.id}/friends/recommended`}
+                aria-label={t('profile.find-friends')}
+                title={error || t('profile.find-friends')}
+              >
+                <span aria-hidden="true">+</span>
+              </Link>
+            ) : (
+              <p className="friends-empty-message">{t('profile.user-has-no-friends')}</p>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
+};
+
+UserFriends.propTypes = {
+  profileUserId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  isCurrentUser: PropTypes.bool.isRequired
 };
 
 export default UserFriends;

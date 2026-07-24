@@ -38,7 +38,9 @@ class FriendService {
    */
   static async getFriendsByName(name, page = 0, size = 10) {
     try {
-      const response = await axios.get(`${FRIEND_LINK}?name=${encodeURIComponent(name)}&page=${page}&size=${size}`);
+      const response = await axios.get(
+        `${FRIEND_LINK}?name=${encodeURIComponent(name)}&page=${page}&size=${size}`
+      );
       return response.data;
     } catch (error) {
       console.error(`Error getting friends by name "${name}":`, error);
@@ -64,6 +66,25 @@ class FriendService {
       console.error('Error getting new potential friends:', error);
       throw error;
     }
+  }
+
+  /**
+   * Search for users who can be added as friends.
+   *
+   * @param {string} [query=''] - Optional user name
+   * @param {number} [page=0] - Page number
+   * @param {number} [size=10] - Page size
+   * @returns {Promise<Object>} Paginated available users
+   */
+  static async searchPotentialFriends(query = '', page = 0, size = 10) {
+    const response = await axios.get(`${FRIEND_LINK}/search`, {
+      params: {
+        query: query.trim(),
+        page,
+        size
+      }
+    });
+    return response.data;
   }
 
   /**
@@ -93,7 +114,7 @@ class FriendService {
    */
   static async getUserFriends(userId, page = 0, size = 10) {
     try {
-      const response = await axios.get(`${FRIEND_LINK}/${userId}/all-user-friends?page=${page}&size=${size}`);
+      const response = await axios.get(`${FRIEND_LINK}/user/${userId}?page=${page}&size=${size}`);
       return response.data;
     } catch (error) {
       console.error(`Error getting friends of user with ID ${userId}:`, error);
@@ -111,7 +132,9 @@ class FriendService {
    */
   static async getMutualFriends(userId, page = 0, size = 10) {
     try {
-      const response = await axios.get(`${FRIEND_LINK}/mutual-friends?friendId=${userId}&page=${page}&size=${size}`);
+      const response = await axios.get(
+        `${FRIEND_LINK}/mutual-friends?friendId=${userId}&page=${page}&size=${size}`
+      );
       return response.data;
     } catch (error) {
       console.error(`Error getting mutual friends with user ID ${userId}:`, error);
@@ -128,7 +151,9 @@ class FriendService {
    */
   static async getRecommendedFriends(page = 0, size = 10) {
     try {
-      const response = await axios.get(`${FRIEND_LINK}/recommended-friends?page=${page}&size=${size}`);
+      const response = await axios.get(
+        `${FRIEND_LINK}/recommended-friends?page=${page}&size=${size}`
+      );
       return response.data;
     } catch (error) {
       console.error('Error getting recommended friends:', error);
@@ -160,7 +185,7 @@ class FriendService {
    */
   static async acceptFriendRequest(userId) {
     try {
-      const response = await axios.patch(`${FRIEND_LINK}/${userId}/acceptFriend`, {});
+      const response = await axios.patch(`${FRIEND_LINK}/${userId}/accept`, {});
       return response.data;
     } catch (error) {
       console.error(`Error accepting friend request from user with ID ${userId}:`, error);
@@ -176,7 +201,7 @@ class FriendService {
    */
   static async declineFriendRequest(userId) {
     try {
-      const response = await axios.patch(`${FRIEND_LINK}/${userId}/declineFriend`, {});
+      const response = await axios.patch(`${FRIEND_LINK}/${userId}/decline`, {});
       return response.data;
     } catch (error) {
       console.error(`Error declining friend request from user with ID ${userId}:`, error);
@@ -208,7 +233,7 @@ class FriendService {
    */
   static async cancelFriendRequest(userId) {
     try {
-      const response = await axios.delete(`${FRIEND_LINK}/${userId}/cancelRequest`);
+      const response = await axios.delete(`${FRIEND_LINK}/${userId}`);
       return response.data;
     } catch (error) {
       console.error(`Error canceling friend request to user with ID ${userId}:`, error);
@@ -257,8 +282,11 @@ class FriendService {
    */
   static async inviteFriendsToHabit(habitId, friendIds) {
     try {
-      const queryParams = friendIds.map(id => `friendsIds=${id}`).join('&');
-      const response = await axios.post(`${HABIT_LINK}/assign/${habitId}/invite?${queryParams}`, {});
+      const queryParams = friendIds.map((id) => `friendsIds=${id}`).join('&');
+      const response = await axios.post(
+        `${HABIT_LINK}/assign/${habitId}/invite?${queryParams}`,
+        {}
+      );
       return response.data;
     } catch (error) {
       console.error(`Error inviting friends to habit with ID ${habitId}:`, error);

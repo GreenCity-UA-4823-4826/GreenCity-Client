@@ -14,6 +14,7 @@ import NewsPage from './components/news/NewsPage';
 import NewsDetail from './components/news/NewsDetail';
 import MapPage from './components/map/MapPage';
 import ProfilePage from './components/profile/ProfilePage';
+import FriendsPage from './components/profile/friends/FriendsPage';
 import EventsPage from './components/events/EventsPage';
 import UbsUserCabinet from './components/ubs-user/UbsUserCabinet';
 
@@ -21,8 +22,18 @@ import UbsUserCabinet from './components/ubs-user/UbsUserCabinet';
 import { AuthProvider } from './contexts/AuthContext';
 
 // Placeholder components for routes not yet implemented
-const NotFoundPage = () => <div className="container"><h1>404 - Page Not Found</h1><p>The page you are looking for does not exist.</p></div>;
-const CreateNewsPage = () => <div className="container" style={{ padding: '60px 20px' }}><h1>Create News</h1><p>This page is under construction.</p></div>;
+const NotFoundPage = () => (
+  <div className="container">
+    <h1>404 - Page Not Found</h1>
+    <p>The page you are looking for does not exist.</p>
+  </div>
+);
+const CreateNewsPage = () => (
+  <div className="container" style={{ padding: '60px 20px' }}>
+    <h1>Create News</h1>
+    <p>This page is under construction.</p>
+  </div>
+);
 
 function App() {
   // Get the Google client ID from settings
@@ -51,10 +62,9 @@ function App() {
               <Route path="/map" element={<MapPage />} />
               <Route path="/about" element={<AboutPage />} />
 
-
               <Route path="/profile/:userId" element={<ProfilePage />} />
-
-
+              <Route path="/profile/:userId/friends" element={<FriendsPage />} />
+              <Route path="/profile/:userId/friends/recommended" element={<FriendsPage />} />
 
               {/* UBS User Cabinet Routes */}
               <Route path="/ubs-user/*" element={<UbsUserCabinet />} />

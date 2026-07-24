@@ -73,9 +73,9 @@ class HabitService {
    * @param {string} [language='en'] - Language code
    * @returns {Promise<import('../../models/habit/Habit').HabitList>} Promise that resolves to habit list
    */
-  static async getMyAllHabits(page = 0, size = 10, language = 'en') {
+  static async getMyAllHabits(_page = 0, _size = 10, language = 'en') {
     try {
-      const response = await axios.get(`${HABIT_LINK}/my?lang=${language}&page=${page}&size=${size}`);
+      const response = await axios.get(`${HABIT_LINK}/assign/allForCurrentUser?lang=${language}`);
       return response.data;
     } catch (error) {
       console.error('Error getting my habits:', error);

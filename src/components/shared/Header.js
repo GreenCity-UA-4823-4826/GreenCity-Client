@@ -10,7 +10,7 @@ import { COMMON_IMAGES } from '../../constants/imagePaths';
 import './Header.scss';
 
 const Header = () => {
-  const { currentUser, signOut, isAuthenticated } = useAuth();
+  const { currentUser, loading, signOut, isAuthenticated, getUserId } = useAuth();
   const { t } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -36,6 +36,10 @@ const Header = () => {
     setShowAuthModal(false);
   };
 
+  const profileUserId = currentUser?.id ?? getUserId();
+  const mySpaceLink =
+    isAuthenticated() && profileUserId ? `/profile/${profileUserId}` : '/auth/sign-in';
+
   return (
     <header className="app-header">
       <div className="container">
@@ -46,13 +50,27 @@ const Header = () => {
         </div>
         <nav className="main-nav">
           <ul>
-            <li><Link to="/">{t('nav.home')}</Link></li>
-            <li><Link to="/about">{t('nav.about')}</Link></li>
-            <li><Link to="/news">{t('nav.news')}</Link></li>
-            <li><Link to="/map">{t('nav.map')}</Link></li>
-            <li><Link to="/events">{t('nav.events')}</Link></li>
             <li>
-              <Link to={isAuthenticated() && currentUser?.id ? `/profile/${currentUser.id}` : "/auth/sign-in"}>
+              <Link to="/">{t('nav.home')}</Link>
+            </li>
+            <li>
+              <Link to="/about">{t('nav.about')}</Link>
+            </li>
+            <li>
+              <Link to="/news">{t('nav.news')}</Link>
+            </li>
+            <li>
+              <Link to="/map">{t('nav.map')}</Link>
+            </li>
+            <li>
+              <Link to="/events">{t('nav.events')}</Link>
+            </li>
+            <li>
+              <Link
+                to={mySpaceLink}
+                aria-disabled={loading}
+                onClick={(event) => loading && event.preventDefault()}
+              >
                 {t('nav.mySpace')}
               </Link>
             </li>
@@ -67,36 +85,45 @@ const Header = () => {
               <button className="profile-btn" onClick={toggleDropdown}>
                 <div className="profile-photo">
                   {currentUser?.profilePicturePath ? (
-                    <img src={currentUser.profilePicturePath} alt="Profile" className="profile-image" />
+                    <img
+                      src={currentUser.profilePicturePath}
+                      alt="Profile"
+                      className="profile-image"
+                    />
                   ) : (
-                    <div className="default-avatar">
-                      {currentUser?.name?.charAt(0) || '?'}
-                    </div>
+                    <div className="default-avatar">{currentUser?.name?.charAt(0) || '?'}</div>
                   )}
                 </div>
-                <span className="profile-name">{currentUser?.name || t('nav.profile', 'Profile')}</span>
+                <span className="profile-name">
+                  {currentUser?.name || t('nav.profile', 'Profile')}
+                </span>
               </button>
               {showDropdown && (
                 <div className="profile-dropdown">
-                  <Link to={`/profile/${currentUser?.id}`} onClick={() => setShowDropdown(false)}>{t('nav.mySpace')}</Link>
-                  <Link to="/ubs-user/orders" onClick={() => setShowDropdown(false)}>{t('nav.myCabinet')}</Link>
+                  <Link to={mySpaceLink} onClick={() => setShowDropdown(false)}>
+                    {t('nav.mySpace')}
+                  </Link>
+                  <Link to="/ubs-user/orders" onClick={() => setShowDropdown(false)}>
+                    {t('nav.myCabinet')}
+                  </Link>
                   <button onClick={handleSignOut}>{t('nav.signOut')}</button>
                 </div>
               )}
             </div>
           ) : (
             <>
-              <button className="sign-in-btn" onClick={() => openAuthModal('sign-in')}>{t('auth.signIn')}</button>
-              <button className="sign-up-btn" onClick={() => openAuthModal('sign-up')}>{t('auth.signUp')}</button>
+              <button className="sign-in-btn" onClick={() => openAuthModal('sign-in')}>
+                {t('auth.signIn')}
+              </button>
+              <button className="sign-up-btn" onClick={() => openAuthModal('sign-up')}>
+                {t('auth.signUp')}
+              </button>
             </>
           )}
 
           {/* Auth Modal */}
           {showAuthModal && (
-            <AuthModal
-              initialPage={authModalPage}
-              onClose={handleCloseAuthModal}
-            />
+            <AuthModal initialPage={authModalPage} onClose={handleCloseAuthModal} />
           )}
         </div>
       </div>

@@ -12,7 +12,7 @@ import './ProfilePage.scss';
 
 const ProfilePage = () => {
   const { userId } = useParams();
-  const { currentUser, isAuthenticated } = useAuth();
+  const { currentUser, loading: authLoading, isAuthenticated, getUserId } = useAuth();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
@@ -23,36 +23,43 @@ const ProfilePage = () => {
   const [isCurrentUser, setIsCurrentUser] = useState(false);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     // Check if user is authenticated and if the profile belongs to the current user
     if (!isAuthenticated()) {
       navigate('/auth/sign-in', { state: { message: 'Please sign in to view profiles.' } });
       return;
     }
 
-    const currentUserId = currentUser?.id?.toString();
+    const currentUserId = String(currentUser?.id ?? getUserId());
     setIsCurrentUser(currentUserId === userId);
 
     loadUserData();
-  }, [userId, currentUser, isAuthenticated, navigate]);
+  }, [userId, currentUser, authLoading, isAuthenticated, getUserId, navigate]);
 
   const loadUserData = async () => {
     try {
       setLoading(true);
+      const profileData = await UserService.getUserProfile(userId);
+      setProfile(profileData);
+      setError(null);
 
-      // Load user profile, habits, and statistics in parallel
-      const [profileData, habitsData, statisticsData] = await Promise.all([
-        UserService.getUserProfile(userId),
+      const [habitsResult, statisticsResult] = await Promise.allSettled([
         UserService.getUserHabits(userId),
         UserService.getUserHabitStatistics(userId)
       ]);
 
-      setProfile(profileData);
-      setHabits(habitsData);
-      setStatistics(statisticsData);
-      setError(null);
+      setHabits(habitsResult.status === 'fulfilled' ? habitsResult.value : []);
+      setStatistics(statisticsResult.status === 'fulfilled' ? statisticsResult.value : null);
     } catch (error) {
       console.error('Error loading user data:', error);
-      setError('Failed to load user data. Please try again later.');
+      setError(
+        error.response?.status === 401
+          ? 'Your session has expired. Please sign in again.'
+          : 'Failed to load user data. Please try again later.'
+      );
     } finally {
       setLoading(false);
     }
@@ -94,7 +101,7 @@ const ProfilePage = () => {
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="profile-page">
         <div className="container">
@@ -112,7 +119,9 @@ const ProfilePage = () => {
         <div className="container">
           <div className="error-message">
             <p>{error}</p>
-            <button className="retry-button" onClick={loadUserData}>Retry</button>
+            <button className="retry-button" onClick={loadUserData}>
+              Retry
+            </button>
           </div>
         </div>
       </div>
@@ -125,13 +134,21 @@ const ProfilePage = () => {
         {/* Profile Header with User Info and Progress */}
         <div className="profile-header">
           <div className="profile-avatar">
-            <img src={profile?.profilePicturePath || 'assets/img/default-avatar.png'} alt="Profile" />
+            <img
+              src={profile?.profilePicturePath || 'assets/img/default-avatar.png'}
+              alt="Profile"
+            />
           </div>
           <div className="profile-info">
             <h1>{profile?.name || 'User'}</h1>
             <p className="profile-email">{profile?.email}</p>
             {isCurrentUser && (
-              <button className="edit-profile-button" onClick={() => navigate(`/profile/${currentUser.id}/edit`)}>Edit Profile</button>
+              <button
+                className="edit-profile-button"
+                onClick={() => navigate(`/profile/${currentUser.id}/edit`)}
+              >
+                Edit Profile
+              </button>
             )}
           </div>
           {statistics && (
@@ -158,7 +175,7 @@ const ProfilePage = () => {
 
             {/* User Friends Section */}
             <div className="friends-section">
-              <UserFriends />
+              <UserFriends profileUserId={userId} isCurrentUser={isCurrentUser} />
             </div>
 
             {/* Eco Places Section */}
@@ -172,14 +189,12 @@ const ProfilePage = () => {
             <div className="habits-section section-card">
               <div className="section-header">
                 <h2>My Eco Habits</h2>
-                {isCurrentUser && (
-                  <button className="add-habit-button">Add New Habit</button>
-                )}
+                {isCurrentUser && <button className="add-habit-button">Add New Habit</button>}
               </div>
 
               {habits.length > 0 ? (
                 <div className="habits-list">
-                  {habits.map(habit => (
+                  {habits.map((habit) => (
                     <div key={habit.id} className="habit-card">
                       <h3>{habit.name}</h3>
                       <p>{habit.description}</p>
@@ -197,7 +212,9 @@ const ProfilePage = () => {
                   ))}
                 </div>
               ) : (
-                <p className="no-habits">No habits found. Start your eco-friendly journey by adding a new habit!</p>
+                <p className="no-habits">
+                  No habits found. Start your eco-friendly journey by adding a new habit!
+                </p>
               )}
             </div>
           </div>

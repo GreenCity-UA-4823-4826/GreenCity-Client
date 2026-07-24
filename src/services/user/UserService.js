@@ -1,7 +1,6 @@
 import axios from 'axios';
 import HabitService from '../habit/HabitService';
 import HabitAssignService from '../habit/HabitAssignService';
-import HabitStatisticService from '../habit/HabitStatisticService';
 import { USER_API_URL } from '../../config/api';
 
 // Base API URL from central configuration
@@ -117,7 +116,7 @@ class UserService {
    */
   static async getUserProfile(userId) {
     try {
-      const response = await axios.get(`${USER_LINK}/${userId}/profile`);
+      const response = await axios.get(`${USER_LINK}/${userId}/profile/`);
       return response.data;
     } catch (error) {
       console.error(`Error getting profile for user with ID ${userId}:`, error);
@@ -136,9 +135,9 @@ class UserService {
   static async getUserHabits(userId, page = 0, size = 10) {
     try {
       // If it's the current user, use getMyAllHabits
-      if (userId === localStorage.getItem('userId')) {
+      if (String(userId) === localStorage.getItem('userId')) {
         const habitList = await HabitService.getMyAllHabits(page, size);
-        return habitList.page || [];
+        return Array.isArray(habitList) ? habitList : habitList.page || [];
       } else {
         // Otherwise, get habits for the specified user
         const habitList = await HabitService.getAllFriendHabits(userId, page, size);
@@ -158,7 +157,7 @@ class UserService {
    */
   static async getUserHabitStatistics(userId) {
     try {
-      return await HabitStatisticService.getUserStatistics(userId);
+      return await this.getProfileStatistics(userId);
     } catch (error) {
       console.error(`Error getting habit statistics for user with ID ${userId}:`, error);
       throw error;

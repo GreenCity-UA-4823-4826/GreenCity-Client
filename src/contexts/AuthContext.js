@@ -1,9 +1,28 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import PropTypes from 'prop-types';
 import AuthService from '../services/auth/AuthService';
 import GoogleAuthService from '../services/auth/GoogleAuthService';
 
 // Create the context
 const AuthContext = createContext(null);
+
+export const normalizeAuthenticatedUser = (userData) => ({
+  ...userData,
+  id: userData.id ?? userData.userId
+});
+
+const getStoredUser = () => {
+  const userId = AuthService.getUserId();
+  if (!AuthService.isAuthenticated() || !userId) {
+    return null;
+  }
+
+  return {
+    id: Number(userId),
+    userId: Number(userId),
+    name: localStorage.getItem('userName') || ''
+  };
+};
 
 // Custom hook to use the auth context
 export const useAuth = () => {
@@ -12,7 +31,7 @@ export const useAuth = () => {
 
 // Provider component
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(getStoredUser);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,7 +41,7 @@ export const AuthProvider = ({ children }) => {
       try {
         if (AuthService.isAuthenticated()) {
           const userData = await AuthService.getCurrentUser();
-          setCurrentUser(userData);
+          setCurrentUser(normalizeAuthenticatedUser(userData));
         }
       } catch (err) {
         console.error('Failed to load user:', err);
@@ -79,11 +98,14 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const userData = await GoogleAuthService.signIn(token, language);
-      setCurrentUser(userData);
       AuthService.setTokens(userData);
-      return userData;
+      const normalizedUser = normalizeAuthenticatedUser(userData);
+      setCurrentUser(normalizedUser);
+      return normalizedUser;
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to sign in with Google using POST. Please try again.');
+      setError(
+        err.response?.data?.message || 'Failed to sign in with Google using POST. Please try again.'
+      );
       throw err;
     } finally {
       setLoading(false);
@@ -96,11 +118,15 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const userData = await GoogleAuthService.signInWithHeader(token, language);
-      setCurrentUser(userData);
       AuthService.setTokens(userData);
-      return userData;
+      const normalizedUser = normalizeAuthenticatedUser(userData);
+      setCurrentUser(normalizedUser);
+      return normalizedUser;
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to sign in with Google using header. Please try again.');
+      setError(
+        err.response?.data?.message ||
+          'Failed to sign in with Google using header. Please try again.'
+      );
       throw err;
     } finally {
       setLoading(false);
@@ -113,11 +139,14 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const userData = await GoogleAuthService.signInWithGet(idToken, language);
-      setCurrentUser(userData);
       AuthService.setTokens(userData);
-      return userData;
+      const normalizedUser = normalizeAuthenticatedUser(userData);
+      setCurrentUser(normalizedUser);
+      return normalizedUser;
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to sign in with Google using GET. Please try again.');
+      setError(
+        err.response?.data?.message || 'Failed to sign in with Google using GET. Please try again.'
+      );
       throw err;
     } finally {
       setLoading(false);
@@ -145,11 +174,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired
 };
 
 export default AuthContext;

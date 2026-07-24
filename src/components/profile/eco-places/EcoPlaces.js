@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../../services/translation/TranslationService';
 import PlaceService from '../../../services/place/PlaceService';
 import './EcoPlaces.scss';
 
@@ -7,14 +7,14 @@ import './EcoPlaces.scss';
  * Component for displaying a user's favorite eco places
  */
 const EcoPlaces = () => {
-  const { t, i18n } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const [ecoPlaces, setEcoPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchEcoPlaces();
-  }, [i18n.language]);
+  }, [currentLanguage]);
 
   /**
    * Fetch eco places data

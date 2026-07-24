@@ -38,13 +38,10 @@ class NotificationsService {
       }
 
       const response = await axios.get(`${NOTIFICATIONS_LINK}`, {
-        params: { page, size },
-        headers: {
-          'Authorization': `Bearer ${AuthService.getAccessToken()}`
-        }
+        params: { page, size }
       });
 
-      this.notifications$.next(response.data.page);
+      this.notifications$.next(response.data.page || []);
       return response.data;
     } catch (error) {
       console.error('Error getting notifications:', error);
@@ -64,12 +61,14 @@ class NotificationsService {
         return 0;
       }
 
-      const response = await axios.get(`${NOTIFICATIONS_LINK}/unread/count`, {
-        headers: {
-          'Authorization': `Bearer ${AuthService.getAccessToken()}`
+      const response = await axios.get(NOTIFICATIONS_LINK, {
+        params: {
+          page: 0,
+          size: 1,
+          viewed: false
         }
       });
-      const count = response.data;
+      const count = response.data.totalElements || 0;
       this.notificationsCount$.next(count);
       return count;
     } catch (error) {
@@ -91,11 +90,7 @@ class NotificationsService {
         throw new Error('User must be authenticated to mark notifications as read');
       }
 
-      const response = await axios.patch(`${NOTIFICATIONS_LINK}/${id}/read`, {}, {
-        headers: {
-          'Authorization': `Bearer ${AuthService.getAccessToken()}`
-        }
-      });
+      const response = await axios.post(`${NOTIFICATIONS_LINK}/${id}/viewNotification`);
 
       // Update the count of unread notifications
       this.getUnreadNotificationsCount();
@@ -119,16 +114,23 @@ class NotificationsService {
         throw new Error('User must be authenticated to mark all notifications as read');
       }
 
-      const response = await axios.patch(`${NOTIFICATIONS_LINK}/read/all`, {}, {
-        headers: {
-          'Authorization': `Bearer ${AuthService.getAccessToken()}`
+      const unreadNotifications = await axios.get(NOTIFICATIONS_LINK, {
+        params: {
+          page: 0,
+          size: 100,
+          viewed: false
         }
       });
+      await Promise.all(
+        (unreadNotifications.data.page || []).map((notification) =>
+          axios.post(`${NOTIFICATIONS_LINK}/${notification.notificationId}/viewNotification`)
+        )
+      );
 
       // Update the count of unread notifications
       this.notificationsCount$.next(0);
 
-      return response.data;
+      return undefined;
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
       throw error;
