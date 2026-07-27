@@ -122,8 +122,8 @@ class FriendService {
   static async getUserFriends(userId, page = 0, size = 10) {
     try {
       const safeUserId = normalizeId(userId, 'userId');
-      const response = await axios.get(`${FRIEND_LINK}/user`, {
-        params: { userId: safeUserId, page, size }
+      const response = await axios.get(`${FRIEND_LINK}/user/${safeUserId}`, {
+        params: { page, size }
       });
       return response.data;
     } catch (error) {
