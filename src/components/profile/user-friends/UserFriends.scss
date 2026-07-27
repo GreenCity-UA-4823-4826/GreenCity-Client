@@ -2,7 +2,7 @@
 
 .main-container.outer {
   width: 100%;
-  margin-bottom: 20px;
+  padding: 2rem;
 }
 
 .friends {
@@ -64,31 +64,50 @@
     }
 
     .friends-images {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 2fr));
+      grid-template-rows: repeat(2, auto);
+      gap: 60px 60px;
       width: 100%;
 
-      > div {
+      .friend-card {
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 100%;
         cursor: pointer;
-        margin-bottom: 10px;
+        margin: 0;
+        text-align: center;
 
-        .friend-name {
-          font-weight: 400;
-          font-size: 12px;
-          line-height: 16px;
-          color: $quaternary-dark-grey;
-          margin: 5px 0 0;
-          text-align: center;
+        .friend-img {
+          display: block;
+          width: 60px;
+          height: 60px;
+          flex: 0 0 60px;
+
+          .profile-image,
+          .default-avatar {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+          }
+
+          .profile-image {
+            object-fit: cover;
+          }
+
+          .default-avatar {
+            display: flex;
+          }
         }
+
       }
     }
   }
 
-  .loading, .error {
+  .loading,
+  .error {
     padding: 20px;
     text-align: center;
     color: $tertiary-light-grey;
@@ -146,6 +165,48 @@
   }
 }
 
+.friends-empty {
+  display: flex;
+  align-items: center;
+  min-height: 82px;
+}
+
+.friends-empty-message {
+  margin: 0;
+  color: $tertiary-light-grey;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.add-friend-circle {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  color: $primary-green;
+  text-decoration: none;
+  border: 2px dashed $primary-green;
+  border-radius: 50%;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+
+  span {
+    font-size: 34px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: white;
+    background-color: $primary-green;
+    transform: scale(1.04);
+    outline: none;
+  }
+}
+
 @media (max-width: $breakpoint-md) {
   .friends {
     .slider-wrapper {
@@ -155,8 +216,13 @@
       }
 
       .friends-images {
-        justify-content: center;
-        gap: 20px;
+        gap: 14px 10px;
+
+        .friend-card .friend-img {
+          width: 50px;
+          height: 50px;
+          flex-basis: 50px;
+        }
       }
     }
   }
@@ -176,7 +242,17 @@
 
     .slider-wrapper {
       .friends-images {
-        gap: 10px;
+        gap: 12px 6px;
+
+        .friend-card {
+          width: 100%;
+
+          .friend-img {
+            width: 40px;
+            height: 40px;
+            flex-basis: 40px;
+          }
+        }
       }
     }
   }

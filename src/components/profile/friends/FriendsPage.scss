@@ -1,0 +1,130 @@
+.friends-page {
+  width: min(1180px, calc(100% - 32px));
+  min-height: 60vh;
+  margin: 40px auto;
+
+  &__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+
+    h1 {
+      margin: 10px 0 0;
+    }
+
+    nav {
+      display: flex;
+      gap: 12px;
+
+      a {
+        padding: 10px 14px;
+        border-radius: 6px;
+        color: #313131;
+        text-decoration: none;
+      }
+
+      .active {
+        color: #fff;
+        background: #13aa57;
+      }
+    }
+  }
+
+  &__search {
+    width: min(460px, 100%);
+    padding: 12px 14px;
+    margin-bottom: 24px;
+    border: 1px solid #878787;
+    border-radius: 6px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px;
+    border: 1px solid #dedede;
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #313131;
+    text-decoration: none;
+
+    span {
+      min-width: 0;
+    }
+
+    strong,
+    small {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    small {
+      margin-top: 4px;
+      color: #6a6a6a;
+    }
+  }
+
+  &__avatar {
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+    border-radius: 50%;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+
+    button {
+      padding: 9px 14px;
+      border: 1px solid #13aa57;
+      border-radius: 6px;
+      color: #fff;
+      background: #13aa57;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      color: #474747;
+      background: #fff;
+      border-color: #878787;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+  }
+
+  &__error {
+    padding: 12px;
+    color: #b3261e;
+    background: #fff0ef;
+    border-radius: 6px;
+  }
+}
+
+@media (max-width: 620px) {
+  .friends-page__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

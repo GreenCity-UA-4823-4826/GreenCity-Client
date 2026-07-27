@@ -12,6 +12,8 @@ const REFRESH_TOKEN_KEY = 'refreshToken';
 const USER_ID_KEY = 'userId';
 const USER_NAME_KEY = 'userName';
 
+let refreshRequest = null;
+
 class AuthService {
   /**
    * Sign in user with email and password
@@ -24,17 +26,21 @@ class AuthService {
       // Create a new axios instance without interceptors to avoid sending the Authorization header
       const axiosInstance = axios.create();
       // Explicitly set minimal headers to reduce request size
-      const response = await axiosInstance.post(`${API_BASE_URL}/signIn`, {
-        email,
-        password
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      const response = await axiosInstance.post(
+        `${API_BASE_URL}/signIn`,
+        {
+          email,
+          password
         },
-        // Disable sending cookies to further reduce request size
-        withCredentials: false
-      });
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          },
+          // Disable sending cookies to further reduce request size
+          withCredentials: false
+        }
+      );
 
       // Log response data structure for debugging (without sensitive info)
       const responseDataKeys = Object.keys(response.data);
@@ -51,7 +57,9 @@ class AuthService {
       // Verify tokens were stored correctly
       const storedRefreshToken = this.getRefreshToken();
       if (!storedRefreshToken) {
-        console.warn('Failed to store refresh token after sign-in. Authentication may fail when the access token expires.');
+        console.warn(
+          'Failed to store refresh token after sign-in. Authentication may fail when the access token expires.'
+        );
       } else {
         console.debug('Successfully stored refresh token');
       }
@@ -76,7 +84,7 @@ class AuthService {
       const response = await axiosInstance.post(`${API_BASE_URL}/signUp`, userData, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         // Disable sending cookies to further reduce request size
         withCredentials: false
@@ -115,7 +123,7 @@ class AuthService {
       const response = await axiosInstance.post(`${API_BASE_URL}/register`, userData, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         withCredentials: false
       });
@@ -137,7 +145,7 @@ class AuthService {
       const response = await axiosInstance.post(`${API_BASE_URL}/sign-up-employee`, userData, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         withCredentials: false
       });
@@ -156,6 +164,7 @@ class AuthService {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_ID_KEY);
     localStorage.removeItem(USER_NAME_KEY);
+    delete axios.defaults.headers.common.Authorization;
   }
 
   /**
@@ -199,14 +208,17 @@ class AuthService {
       // Create a new axios instance without interceptors to avoid sending the Authorization header
       const axiosInstance = axios.create();
       // Explicitly set minimal headers to reduce request size
-      const response = await axiosInstance.get(`${API_BASE_URL}/updateAccessToken?refreshToken=${refreshToken}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        // Disable sending cookies to further reduce request size
-        withCredentials: false
-      });
+      const response = await axiosInstance.get(
+        `${API_BASE_URL}/updateAccessToken?refreshToken=${refreshToken}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          },
+          // Disable sending cookies to further reduce request size
+          withCredentials: false
+        }
+      );
 
       // Ensure we properly store the new tokens
       this.setTokens(response.data);
@@ -262,8 +274,10 @@ class AuthService {
    * @param {Object} data - Token data
    */
   static setTokens(data) {
-    if (data.accessToken) {
-      localStorage.setItem(ACCESS_TOKEN_KEY, data.accessToken);
+    const accessToken = data.accessToken || data.access_token;
+    if (accessToken) {
+      localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+      axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     } else {
       console.warn('No access token provided to setTokens');
     }
@@ -284,12 +298,15 @@ class AuthService {
     if (refreshToken) {
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     } else {
-      console.warn('No refresh token provided to setTokens. Authentication may fail when the access token expires.');
+      console.warn(
+        'No refresh token provided to setTokens. Authentication may fail when the access token expires.'
+      );
       console.warn('Data received:', JSON.stringify(data, null, 2));
     }
 
-    if (data.userId) {
-      localStorage.setItem(USER_ID_KEY, data.userId);
+    const userId = data.userId ?? data.id;
+    if (userId !== undefined && userId !== null) {
+      localStorage.setItem(USER_ID_KEY, String(userId));
     } else {
       console.warn('No user ID provided to setTokens');
     }
@@ -310,7 +327,7 @@ class AuthService {
       const response = await axiosInstance.post(`${API_BASE_URL}/updatePassword`, passwordData, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         withCredentials: false
       });
@@ -331,7 +348,7 @@ class AuthService {
       const response = await axiosInstance.get(`${API_BASE_URL}/password-status`, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         withCredentials: false
       });
@@ -353,7 +370,7 @@ class AuthService {
       const response = await axiosInstance.get(`${API_BASE_URL}/restorePassword?email=${email}`, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         withCredentials: false
       });
@@ -375,7 +392,7 @@ class AuthService {
       const response = await axiosInstance.post(`${API_BASE_URL}/set-password`, passwordData, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         withCredentials: false
       });
@@ -397,7 +414,7 @@ class AuthService {
       const response = await axiosInstance.put(`${API_BASE_URL}/changePassword`, passwordData, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         withCredentials: false
       });
@@ -409,13 +426,21 @@ class AuthService {
   }
 
   /**
-   * Setup axios interceptors for error handling (no token required)
+   * Setup axios interceptors for authorization and error handling.
    */
   static setupAxiosInterceptors() {
-    // Request interceptor - no token required
+    const storedAccessToken = this.getAccessToken();
+    if (storedAccessToken) {
+      axios.defaults.headers.common.Authorization = `Bearer ${storedAccessToken}`;
+    }
+
     axios.interceptors.request.use(
       (config) => {
-        // No token authorization required
+        const accessToken = this.getAccessToken();
+        if (accessToken) {
+          config.headers = config.headers || {};
+          config.headers.Authorization = `Bearer ${accessToken}`;
+        }
         return config;
       },
       (error) => Promise.reject(error)
@@ -427,6 +452,30 @@ class AuthService {
       async (error) => {
         try {
           const originalRequest = error.config;
+          const shouldRefresh =
+            error.response?.status === 401 &&
+            originalRequest &&
+            !originalRequest._retry &&
+            !originalRequest.url?.includes('/ownSecurity/signIn') &&
+            !originalRequest.url?.includes('/ownSecurity/updateAccessToken') &&
+            this.getRefreshToken();
+
+          if (shouldRefresh) {
+            originalRequest._retry = true;
+
+            if (!refreshRequest) {
+              refreshRequest = this.refreshToken().finally(() => {
+                refreshRequest = null;
+              });
+            }
+
+            const tokenData = await refreshRequest;
+            const accessToken = tokenData.accessToken || tokenData.access_token;
+
+            originalRequest.headers = originalRequest.headers || {};
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return axios(originalRequest);
+          }
 
           // Log the error for debugging
           console.debug('Axios interceptor caught an error:', {

@@ -10,7 +10,7 @@ import './Notifications.scss';
  * @returns {JSX.Element|null} - Rendered component or null if user is not authenticated
  */
 const Notifications = () => {
-  const { isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -22,13 +22,15 @@ const Notifications = () => {
   useEffect(() => {
     if (isAuthenticated()) {
       loadNotificationsCount();
+      const pollingId = window.setInterval(loadNotificationsCount, 30000);
 
       // Subscribe to notifications count changes
-      const subscription = NotificationsService.notificationsCount$.subscribe(count => {
+      const subscription = NotificationsService.notificationsCount$.subscribe((count) => {
         setNotificationsCount(count);
       });
 
       return () => {
+        window.clearInterval(pollingId);
         subscription.unsubscribe();
       };
     }
@@ -85,12 +87,11 @@ const Notifications = () => {
   // Mark notification as read and navigate to its link
   const handleNotificationClick = async (notification) => {
     try {
-      await NotificationsService.markAsRead(notification.id);
+      await NotificationsService.markAsRead(notification.notificationId);
       setShowDropdown(false);
 
-      // Navigate to the notification link if available
-      if (notification.link) {
-        navigate(notification.link);
+      if (notification.notificationType === 'FRIEND_REQUEST') {
+        navigate(`/profile/${currentUser?.id}/friends/recommended`);
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -103,10 +104,12 @@ const Notifications = () => {
       await NotificationsService.markAllAsRead();
 
       // Update local notifications to mark all as read
-      setNotifications(notifications.map(notification => ({
-        ...notification,
-        read: true
-      })));
+      setNotifications(
+        notifications.map((notification) => ({
+          ...notification,
+          viewed: true
+        }))
+      );
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
     }
@@ -148,10 +151,7 @@ const Notifications = () => {
           <div className="notifications-header">
             <h3>Notifications</h3>
             {notificationsCount > 0 && (
-              <button
-                className="mark-all-read"
-                onClick={markAllAsRead}
-              >
+              <button className="mark-all-read" onClick={markAllAsRead}>
                 Mark all as read
               </button>
             )}
@@ -161,15 +161,16 @@ const Notifications = () => {
             {loading ? (
               <div className="notifications-loading">Loading notifications...</div>
             ) : notifications.length > 0 ? (
-              notifications.map(notification => (
+              notifications.map((notification) => (
                 <div
-                  key={notification.id}
-                  className={`notification-item ${notification.read ? 'read' : 'unread'}`}
+                  key={notification.notificationId}
+                  className={`notification-item ${notification.viewed ? 'read' : 'unread'}`}
                   onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="notification-content">
-                    <p className="notification-text">{notification.text}</p>
-                    <span className="notification-date">{formatDate(notification.creationDate)}</span>
+                    <strong className="notification-title">{notification.titleText}</strong>
+                    <p className="notification-text">{notification.bodyText}</p>
+                    <span className="notification-date">{formatDate(notification.time)}</span>
                   </div>
                 </div>
               ))

@@ -75,5 +75,16 @@
   "homepage.subscription.seccesfully-subcribe": "Seccesfully subcribed",
   "homepage.subscription.failed-connect-server":"Failed connected with server",
   "homepage.subscription.thank-you-subcribe":"Thank you! You have successfully subscribed.",
-  "homepage.subscription.already-subscribed":"Oops, you are already subscribed to the newsletter."
+  "homepage.subscription.already-subscribed":"Oops, you are already subscribed to the newsletter.",
+  "profile.my-eco-friends": "My eco friends",
+  "profile.my-eco-places": "My eco places",
+  "profile.eco-places-quantity": "eco places",
+  "profile.friends-quantity": "friends",
+  "profile.see-all": "See all",
+  "profile.find-friends": "Find eco friends",
+  "profile.find-friends-description": "Discover people and send a friend request",
+  "profile.my-friends": "My friends",
+  "profile.user-has-no-friends": "This user does not have any friends yet",
+  "profile.connections": "connections",
+  "profile.see-more": "See more"
 }
